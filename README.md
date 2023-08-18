@@ -1,1 +1,0 @@
-# Cylinder_section_calculator

@@ -5,6 +5,7 @@ Purpose: Calculate the section of a cylinder in function of the section angle.
 Display cut and section area.
 '''
 import math
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Rectangle
 from matplotlib.widgets import Slider
@@ -38,6 +39,46 @@ class Cylinder:
         '''
         volume = self.circle_base_area(diameter) * height
         return volume
+    
+    def t_limit(self, semi_major_axis, max_length):
+        return np.arccos(max_length / semi_major_axis)
+    
+    def extrem_point(self, x, y, coef_a, coef_b, semi_minor_axis, semi_major_axis, max_length):
+        x.append(coef_a * max_length)
+        y.append(coef_b * np.sqrt(1-((max_length/semi_major_axis)**2))*semi_minor_axis)
+
+    def curve(self, x, y, lim, semi_minor_axis, semi_major_axis):
+        for i in np.linspace(lim[0], lim[1]):
+            x.append(semi_major_axis * np.cos(i))
+            y.append(semi_minor_axis * np.sin(i))
+
+    def ellipse_eq(self, semi_minor_axis, semi_major_axis):
+        x = []
+        y = []
+        self.curve(x, y, [0, 2 * np.pi], semi_minor_axis, semi_major_axis)
+        return x, y
+    
+    def tronc_ellipse_eq(self, semi_minor_axis, semi_major_axis, max_length):
+        x = []
+        y = []
+        for i in range (2):
+            for j in range(2):
+                self.extrem_point(x, y, 1 - 2 * i, 1 - 2 * j, semi_minor_axis, semi_major_axis, max_length)
+            #self.extrem_point(x, y, 1 - 2 * i, 1 - 2 * i, semi_minor_axis, semi_major_axis, max_length)
+            self.curve(x, y, [self.t_lim() - i * np.pi, (1 - i) * np.pi -self.t_lim()], semi_minor_axis, semi_major_axis)
+        return x, y
+    
+    def rectangle_eq(self, semi_minor_axis, semi_major_axis):
+        x = []
+        y = []
+        for i in range(2):
+            for j in range(2):
+                print(j)
+                x.append((1 - 2 * i) * semi_major_axis)
+                y.append(( 1 - 2 * j)*(1 - 2 * i) * semi_minor_axis) 
+
+        return x, y 
+           
 
     def section_dim(self, section_angle, diameter, height):
         '''
@@ -47,10 +88,13 @@ class Cylinder:
         opposite = semi_minor_axis * round(math.tan(math.radians(section_angle)), 5)
         if opposite <= height:
             semi_major_axis = semi_minor_axis / round(math.cos(math.radians(section_angle)), 5)
-        elif:
+            return self.ellipse_eq(semi_minor_axis, semi_major_axis)
+        elif opposite > height:
             semi_major_axis = height / round(math.cos(math.radians(90 - section_angle)), 5)
-
-        return semi_minor_axis * 2, semi_major_axis * 2
+            if semi_major_axis != height:
+                return self.tronc_ellipse_eq(semi_minor_axis, semi_major_axis, height)
+            else: 
+                return self.rectangle_eq(semi_minor_axis, height)
 
 class Plot:
     '''
@@ -72,11 +116,8 @@ class Plot:
         '''
         Function to draw an ellipse in the given subplot according to parameters.
         '''
-        width, height = Cylinder().section_dim(angle, diameter, length)
-        ellipse= Ellipse([0.0, 0.0], width, height)
-        self.set_axe(axe, ellipse)
-        axe.set_xlim(-height, height)
-        axe.set_ylim(-height, height)
+        x, y = Cylinder().section_dim(angle, diameter, length)
+        axe.plot(x, y)
         axe.set_title('Section shape')
 
     def subplot_cylinder(self, axe, angle, diameter, length):
@@ -123,7 +164,9 @@ class Plot:
         slider.on_changed(update)
         plt.show()
 
-Plot().graph(0.1, 1, 10)
+#Plot().graph(0.1, 1, 10)
 
-
+x, y = Cylinder().rectangle_eq(2, 8)
+plt.plot(x, y)
+plt.show()
 

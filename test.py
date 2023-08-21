@@ -1,56 +1,40 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 
-semi_major = 10
-semi_minor = 5
-t = np.linspace(0, 2*np.pi)
-
-def ellipse_eq(semi_minor, semi_major, t):
-    x =semi_major * np.cos(t)
-    y = semi_minor * np.sin(t)
+def ellipse_eq(semi_minor_axis, semi_major_axis, t):
+    x =semi_major_axis * np.cos(t)
+    y = semi_minor_axis * np.sin(t)
     return x, y
 
+def t_limit(semi_major_axis, max_length):
+    return np.arccos(max_length / semi_major_axis)
+
 def t_lim():
-    max_l = 8 
-    semi_major = 10
-    semi_minor = 5
-    t_lim = np.arccos(max_l / semi_major)
-    print(np.rad2deg(t_lim))
-    return t_lim
+    semi_major_axis = 10
+    max_length = 8
+    return np.arccos(max_length / semi_major_axis)
+
+def extrem_point(x, y, a, b, semi_minor, semi_major, max_l):
+        x.append(a * max_l)
+        y.append(b * np.sqrt(1-((max_l/semi_major)**2))*semi_minor)
+
+def curve(x, y, lim, semi_minor, semi_major):
+    for i in np.linspace(lim[0], lim[1]):
+        x.append(semi_major * np.cos(i))
+        y.append(semi_minor * np.sin(i))
 
 def tronc_ellipse():
     x = []
     y = []
-    semi_major = 10
-    semi_minor = 5
     max_l = 8
-    t1 = np.linspace(-t_lim(), 0)
-    for i in t1:
-        x.append(max_l)
-        y.append(-np.sqrt(1-((max_l/semi_major)**2))*semi_minor)
-    t2 = np.linspace(0, t_lim())
-    for i in t2:
-        x.append(max_l)
-        y.append(np.sqrt(1-((max_l/semi_major)**2))*semi_minor)
-    t3 = np.linspace(t_lim(), np.pi - t_lim())
-    for i in t3:
-        x.append(semi_major * np.cos(i))
-        y.append(semi_minor * np.sin(i))
-    t4 = np.linspace(np.pi - t_lim(), np.pi)
-    for i in t4:
-        x.append(-max_l)
-        y.append(np.sqrt(1-(max_l/semi_major)**2)*semi_minor)
-    t5 = np.linspace(np.pi, np.pi + t_lim())
-    for i in t5:
-        x.append(-max_l)
-        y.append(-np.sqrt(1-(max_l/semi_major)**2)*semi_minor)
-    t6 = np.linspace(-np.pi + t_lim(), -t_lim())
-    for i in t6:
-        x.append(semi_major * np.cos(i))
-        y.append(semi_minor * np.sin(i))
-    print(x)
-    print(y)
+    semi_major = 10 
+    semi_minor = 5
+    for i in range (2):
+        extrem_point(x, y, 1 - 2 * i, 2 * i - 1, semi_minor, semi_major, max_l)
+        extrem_point(x, y, 1 - 2 * i, 1 - 2 * i, semi_minor, semi_major, max_l)
+        curve(x, y, [t_lim() - i * np.pi, (1 - i) * np.pi -t_lim()], semi_minor, semi_major)
     return x, y
+   
 
 x, y = tronc_ellipse()
 plt.plot(x, y)

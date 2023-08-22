@@ -40,14 +40,20 @@ class Cylinder:
         volume = self.circle_base_area(diameter) * height
         return volume
     
-    def t_limit(self, semi_major_axis, max_length):
-        return np.arccos(max_length / semi_major_axis)
-    
-    def extrem_point(self, x, y, coef_a, coef_b, semi_minor_axis, semi_major_axis, max_length):
-        x.append(coef_a * max_length)
-        y.append(coef_b * np.sqrt(1-((max_length/semi_major_axis)**2))*semi_minor_axis)
+    def vertex_parameter(self, semi_minor_axis, semi_major_axis, section_length):
+        abs_x = section_length
+        abs_y = np.sqrt(1-((abs_x/semi_major_axis)**2))*semi_minor_axis
+        polar_r = np.sqrt((abs_x**2) + (abs_y**2))
+        vertex_angle = np.arccos(abs_x/polar_r)
+        #vertex_angle = np.pi/2.7
+        print('vertex print -----------------')
+        print(polar_r)
+        print(abs_x, abs_y)
+        print(vertex_angle)
+        return abs_x, abs_y, vertex_angle
 
     def curve(self, x, y, lim, semi_minor_axis, semi_major_axis):
+        lim = [0, 2*np.pi]
         for i in np.linspace(lim[0], lim[1]):
             x.append(semi_major_axis * np.cos(i))
             y.append(semi_minor_axis * np.sin(i))
@@ -58,39 +64,58 @@ class Cylinder:
         self.curve(x, y, [0, 2 * np.pi], semi_minor_axis, semi_major_axis)
         return x, y
     
-    def tronc_ellipse_eq(self, semi_minor_axis, semi_major_axis, cut_length, max_length):
+    def tronc_ellipse_eq(self, semi_minor_axis, semi_major_axis, section_length, val):
         x = []
         y = []
-        for i in range (2):
+        abs_x, abs_y, vertex_angle = self.vertex_parameter(semi_minor_axis, semi_major_axis, section_length)
+        for i in range(2):
+            pos_neg = 1 - 2 * i 
+            if val == 1: 
+                for tuple in [(pos_neg,-pos_neg), (pos_neg,pos_neg)]:
+                    x.append(tuple[0] * abs_x)
+                    y.append(tuple[1] * abs_y) 
+            if val == 2:
+                self.curve(x, y, [vertex_angle - 0 * np.pi, (1 - 0) * np.pi - vertex_angle], semi_minor_axis, semi_major_axis)
+            if val == 3:
+                return abs_x, abs_y
+        return x, y
+    '''
+     for i in range (2):
             for j in range(2):
                 self.extrem_point(x, y, 1 - 2 * i, 1 - 2 * j, semi_minor_axis, cut_length, max_length)
             self.curve(x, y, [self.t_limit(cut_length, max_length) - i * np.pi, (1 - i) * np.pi -self.t_limit(cut_length, max_length)], semi_minor_axis, semi_major_axis)
-        return x, y
+        return x, y'''
     
-    def rectangle_eq(self, semi_minor_axis, semi_major_axis):
+
+    
+    def rectangle_eq(self, semi_height, semi_width):
         x = []
         y = []
         for tuple in [(1,-1), (1,1), (-1,1), (-1,-1), (1,-1)]:
-                x.append(tuple[0] * semi_major_axis)
-                y.append(tuple[1] * semi_minor_axis) 
+                x.append(tuple[0] * semi_width)
+                y.append(tuple[1] * semi_height) 
         return x, y 
            
 
-    def section_dim(self, section_angle, diameter, height):
+    def section_dim(self, section_angle, diameter, cylinder_length):
         '''
         Function to calculate section dimension according to the cut angle.
         '''
         semi_minor_axis = diameter / 2
-        opposite = semi_minor_axis * round(math.tan(math.radians(section_angle)), 5)
-        if opposite <= height:
+        if section_angle < 90:
             semi_major_axis = semi_minor_axis / round(math.cos(math.radians(section_angle)), 5)
+        opposite = semi_minor_axis * round(math.tan(math.radians(section_angle)), 5)
+
+        if opposite <= cylinder_length:
             return self.ellipse_eq(semi_minor_axis, semi_major_axis)
         else:
-            cut_length = height / round(math.cos(math.radians(90 - section_angle)), 5)
-            semi_major_axis = semi_minor_axis / round(math.cos(math.radians(section_angle)), 5)
-            return self.tronc_ellipse_eq(semi_minor_axis, semi_major_axis, cut_length, height)
-            '''else: 
-            return self.rectangle_eq(semi_minor_axis, height)'''
+            section_length = cylinder_length / round(math.cos(math.radians(90 - section_angle)), 5)
+            if section_angle == 90:
+                return self.rectangle_eq(semi_minor_axis, section_length)
+            else:
+                return self.tronc_ellipse_eq(semi_minor_axis, semi_major_axis, section_length)
+            
+            
 
 class Plot:
     '''
@@ -113,7 +138,7 @@ class Plot:
         Function to draw an ellipse in the given subplot according to parameters.
         '''
         x, y = Cylinder().section_dim(angle, diameter, length)
-        axe.axis('square')
+        axe.set_xlim(- diameter, diameter)
         axe.plot(y, x)
         axe.set_title('Section shape')
 
@@ -121,19 +146,11 @@ class Plot:
         '''
         Function to draw a rectangle (cylinder side view) and a line (cutting line) to the given subplot according to parameters.
         '''
-        cylinder = Rectangle([-length/2, -diameter/2], length, diameter)
-        self.set_axe(axe, cylinder)
-        self.section_line(axe, angle, diameter)
-        axe.set_title('Cylinder side view and section line')
-
-    def set_axe(self, axe, patch):
-        '''
-        Function to add patch (ellipse, rectangle or other shape) to given subplot.
-        '''
-        axe.add_patch(patch)
+        axe.add_patch(Rectangle([-length/2, -diameter/2], length, diameter))
         axe.set_aspect('equal')
         axe.autoscale()  
-
+        self.section_line(axe, angle, diameter)
+        axe.set_title('Cylinder side view and section line')
 
     def graph(self, angle, diameter = None, length = None):
         '''
@@ -161,8 +178,13 @@ class Plot:
         slider.on_changed(update)
         plt.show()
 
-Plot().graph(0.1, 1, 10)
+#Plot().graph(0.1, 1, 10)
 
-'''x, y = Cylinder().tronc_ellipse_eq(8, 8, 8)
+x, y = Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 1)
 plt.plot(x,y)
-plt.show()'''
+x, y = Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 2)
+plt.plot(x,y)
+x, y = Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 3)
+print(x, y)
+
+plt.show()

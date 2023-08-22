@@ -114,7 +114,7 @@ class Plot:
         '''
         x, y = Cylinder().section_dim(angle, diameter, length)
         axe.axis('square')
-        axe.plot(x, y)
+        axe.plot(y, x)
         axe.set_title('Section shape')
 
     def subplot_cylinder(self, axe, angle, diameter, length):

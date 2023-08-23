@@ -19,7 +19,7 @@ The curve() function from Cylinder() object is used with semi_minor_axis = semi_
 
 #### Interface:
 
-![interface 1](resources/interface_1.PNG)
+![interface 1](resources/interface_1.png)
 
 ### Case 2: ellipse shape
 
@@ -35,7 +35,7 @@ This is performed with the ellipse_eq() function of Cylinder() object.
 
 #### Interface:
 
-![interface 2](resources/interface_2.PNG)
+![interface 2](resources/interface_2.png)
 
 ### Case 3: truncated ellipse shape
 
@@ -50,7 +50,7 @@ The curve() function from Cylinder() object is used between each vertex followin
 
 #### Interface:
 
-![interface 3](resources/interface_3.PNG)
+![interface 3](resources/interface_3.png)
 
 ### Case 4: rectangle shape
 
@@ -65,4 +65,4 @@ The vertexes are directly linked together with the rectangle_eq() function of Cy
 
 #### Interface:
 
-![interface 4](resources/interface_4.PNG)
+![interface 4](resources/interface_4.png)

@@ -44,17 +44,14 @@ class Cylinder:
         abs_x = section_length
         abs_y = np.sqrt(1-((abs_x/semi_major_axis)**2))*semi_minor_axis
         polar_r = np.sqrt((abs_x**2) + (abs_y**2))
-        vertex_angle = np.arccos(abs_x/polar_r)
-        #vertex_angle = np.pi/2.7
-        print('vertex print -----------------')
-        print(polar_r)
-        print(abs_x, abs_y)
-        print(vertex_angle)
+        #vertex_angle = np.arccos(abs_x/polar_r)
+        #vertex_angle = np.arctan(abs_y/abs_x)
+        vertex_angle = np.arccos(abs_x/semi_major_axis)
         return abs_x, abs_y, vertex_angle
 
     def curve(self, x, y, lim, semi_minor_axis, semi_major_axis):
-        lim = [0, 2*np.pi]
         for i in np.linspace(lim[0], lim[1]):
+            print(i)
             x.append(semi_major_axis * np.cos(i))
             y.append(semi_minor_axis * np.sin(i))
 
@@ -180,11 +177,12 @@ class Plot:
 
 #Plot().graph(0.1, 1, 10)
 
-x, y = Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 1)
+x, y= Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 1)
 plt.plot(x,y)
-x, y = Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 2)
+
+x, y= Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 2)
+
+
 plt.plot(x,y)
-x, y = Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 3)
-print(x, y)
 
 plt.show()

@@ -157,7 +157,7 @@ class Plot:
 
         figure, axes = plt.subplots(2, figsize=(10,7))
         figure.tight_layout()
-        figure.subplots_adjust(bottom=0.1)
+        figure.subplots_adjust(bottom=0.2)
         self.subplot_section(axes[0], angle, diameter, length)
         self.subplot_cylinder(axes[1], angle, diameter, length)
 

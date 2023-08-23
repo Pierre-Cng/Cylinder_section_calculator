@@ -43,15 +43,11 @@ class Cylinder:
     def vertex_parameter(self, semi_minor_axis, semi_major_axis, section_length):
         abs_x = section_length
         abs_y = np.sqrt(1-((abs_x/semi_major_axis)**2))*semi_minor_axis
-        polar_r = np.sqrt((abs_x**2) + (abs_y**2))
-        #vertex_angle = np.arccos(abs_x/polar_r)
-        #vertex_angle = np.arctan(abs_y/abs_x)
         vertex_angle = np.arccos(abs_x/semi_major_axis)
         return abs_x, abs_y, vertex_angle
 
     def curve(self, x, y, lim, semi_minor_axis, semi_major_axis):
         for i in np.linspace(lim[0], lim[1]):
-            print(i)
             x.append(semi_major_axis * np.cos(i))
             y.append(semi_minor_axis * np.sin(i))
 
@@ -61,20 +57,17 @@ class Cylinder:
         self.curve(x, y, [0, 2 * np.pi], semi_minor_axis, semi_major_axis)
         return x, y
     
-    def tronc_ellipse_eq(self, semi_minor_axis, semi_major_axis, section_length, val):
+    def tronc_ellipse_eq(self, semi_minor_axis, semi_major_axis, section_length):
         x = []
         y = []
         abs_x, abs_y, vertex_angle = self.vertex_parameter(semi_minor_axis, semi_major_axis, section_length)
         for i in range(2):
             pos_neg = 1 - 2 * i 
-            if val == 1: 
-                for tuple in [(pos_neg,-pos_neg), (pos_neg,pos_neg)]:
-                    x.append(tuple[0] * abs_x)
-                    y.append(tuple[1] * abs_y) 
-            if val == 2:
-                self.curve(x, y, [vertex_angle - 0 * np.pi, (1 - 0) * np.pi - vertex_angle], semi_minor_axis, semi_major_axis)
-            if val == 3:
-                return abs_x, abs_y
+            for tuple in [(pos_neg,-pos_neg), (pos_neg,pos_neg)]:
+                x.append(tuple[0] * abs_x)
+                y.append(tuple[1] * abs_y) 
+            
+            self.curve(x, y, [vertex_angle - i * np.pi, (1 - i) * np.pi - vertex_angle], semi_minor_axis, semi_major_axis)
         return x, y
     '''
      for i in range (2):
@@ -177,12 +170,9 @@ class Plot:
 
 #Plot().graph(0.1, 1, 10)
 
-x, y= Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 1)
+x, y= Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603)
 plt.plot(x,y)
 
-x, y= Cylinder().tronc_ellipse_eq(5, 25.866528711846872, 10.001900361068603, 2)
 
-
-plt.plot(x,y)
 
 plt.show()

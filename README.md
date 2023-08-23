@@ -1,6 +1,6 @@
 # Cylinder section calculator
 
-This tool purpose is to allow to visualize the section shape of a cylinder according to the section angle.
+This tool allows to visualize the section shape of a cylinder according to the section angle.
 
 ## Section shapes:
 
